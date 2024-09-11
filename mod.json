@@ -1,0 +1,36 @@
+{
+	"geode": "3.5.0",
+	"gd": {
+		"win": "2.206",
+		"android": "2.206",
+		"mac": "2.206",
+		"ios": "2.206"
+	},
+	"id": "thesillydoggo.decimal_percentages",
+	"name": "Decimal Percentages",
+	"version": "v1.0.0",
+	"developer": "TheSillyDoggo",
+	"description": "Shows decimals in your new bests",
+	"dependencies": [
+        {
+            "id": "cvolton.level-id-api",
+            "version": "*",
+            "importance": "required"
+        },
+		{
+			"id": "geode.node-ids",
+			"version": ">=v1.10.0",
+			"importance": "required"
+		}
+    ],
+	"settings": {
+		"decimal-places": {
+			"type": "int",
+			"name": "Decimal Places",
+			"default": 2,
+			"min": 1,
+			"max": 50,
+			"description": "The amount of decimal places in the number"
+		}
+	}
+}
