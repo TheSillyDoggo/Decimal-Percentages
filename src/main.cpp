@@ -132,7 +132,7 @@ class $modify (PlayLayer)
 
 		const auto loader = Loader::get();
 		if (const auto dst = loader->getLoadedMod("raydeeux.deathscreentweaks")) {
-			if (dst->getSettingValue<bool>("enabled") || dst->getSettingValue<bool>("accuratePercent")) return;
+			if (dst->getSettingValue<bool>("enabled") && dst->getSettingValue<bool>("accuratePercent")) return;
 		}
 
 		loader->queueInMainThread([this]{
