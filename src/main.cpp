@@ -1,9 +1,8 @@
-#include <Geode/Geode.hpp>
+#include <Geode/modify/GJGameLevel.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/modify/PauseLayer.hpp>
-#include <Geode/modify/GJGameLevel.hpp>
 #include <Geode/modify/LevelPage.hpp>
 #include <cvolton.level-id-api/include/EditorIDs.hpp>
 
@@ -49,17 +48,17 @@ void savePercent(GJGameLevel* level, float percent, bool practice)
 	Mod::get()->setSavedValue<float>(str, percent);
 }
 
-class $modify (GJGameLevel)
+class $modify(GJGameLevel)
 {
 	void savePercentage(int percent, bool isPracticeMode, int clicks, int attempts, bool isChkValid)
 	{
 		GJGameLevel::savePercentage(percent, isPracticeMode, clicks, attempts, isChkValid);
 
-		if (PlayLayer::get())
-			if (PlayLayer::get()->getCurrentPercent() > getPercentageForLevel(this, isPracticeMode))
-				savePercent(this, PlayLayer::get()->getCurrentPercent(), isPracticeMode);
-		else
-			savePercent(this, percent, isPracticeMode);
+		auto pl = PlayLayer::get();
+		if (!pl) savePercent(this, percent, isPracticeMode);
+		else if (pl->getCurrentPercent() > getPercentageForLevel(this, isPracticeMode))
+			savePercent(this, PlayLayer::get()->getCurrentPercent(), isPracticeMode);
+
 	}
 };
 
@@ -131,7 +130,12 @@ class $modify (PlayLayer)
 	{
 		PlayLayer::showNewBest(p0, p1, p2, p3, p4, p5);
 
-		Loader::get()->queueInMainThread([this]{
+		const auto loader = Loader::get();
+		if (const auto dst = loader->getLoadedMod("raydeeux.deathscreentweaks")) {
+			if (dst->getSettingValue<bool>("enabled") || dst->getSettingValue<bool>("accuratePercent")) return;
+		}
+
+		loader->queueInMainThread([this]{
 			for (auto child : CCArrayExt<CCNode*>(getChildren()))
 			{
 				if (child->getZOrder() == 100)
