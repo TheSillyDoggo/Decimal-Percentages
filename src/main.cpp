@@ -55,8 +55,11 @@ class $modify (GJGameLevel)
 	{
 		GJGameLevel::savePercentage(percent, isPracticeMode, clicks, attempts, isChkValid);
 
-		if (PlayLayer::get() && PlayLayer::get()->getCurrentPercent() > getPercentageForLevel(this, isPracticeMode))
-			savePercent(this, PlayLayer::get()->getCurrentPercent(), isPracticeMode);
+		if (PlayLayer::get())
+			if (PlayLayer::get()->getCurrentPercent() > getPercentageForLevel(this, isPracticeMode))
+				savePercent(this, PlayLayer::get()->getCurrentPercent(), isPracticeMode);
+		else
+			savePercent(this, percent, isPracticeMode);
 	}
 };
 
@@ -131,9 +134,9 @@ class $modify (PlayLayer)
 		Loader::get()->queueInMainThread([this]{
 			for (auto child : CCArrayExt<CCNode*>(getChildren()))
 			{
-				if (getChildBySpriteFrameName(child, "GJ_newBest_001.png"))
+				if (child->getZOrder() == 100)
 				{
-					if (auto label = getChildOfType<CCLabelBMFont>(child, 0))
+					if (auto label = getChildOfType<CCLabelBMFont>(child, -1))
 						label->setString(fmt::format("{}%", roundPercentage(getPercentageForLevel(m_level, false))).c_str());
 				}
 			}
