@@ -55,7 +55,7 @@ class $modify (GJGameLevel)
 	{
 		GJGameLevel::savePercentage(percent, isPracticeMode, clicks, attempts, isChkValid);
 
-		if (PlayLayer::get())
+		if (PlayLayer::get() && PlayLayer::get()->getCurrentPercent() > getPercentageForLevel(this, isPracticeMode))
 			savePercent(this, PlayLayer::get()->getCurrentPercent(), isPracticeMode);
 	}
 };

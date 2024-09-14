@@ -1,3 +1,4 @@
-# Template Mod
+# Decimal Percentages
 
-Edit about.md to change this
+Adds percentages to your New Bests.
+Check ~~steam~~ mod settings to customize the amount of decimals in the value
