@@ -14,7 +14,7 @@
 	"dependencies": [
         {
             "id": "cvolton.level-id-api",
-            "version": "*",
+            "version": "v1.0.0",
             "importance": "required"
         },
 		{
