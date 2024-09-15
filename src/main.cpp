@@ -4,6 +4,7 @@
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/modify/LevelPage.hpp>
+#include <Geode/utils/cocos.hpp>
 #include <cvolton.level-id-api/include/EditorIDs.hpp>
 
 using namespace geode::prelude;
