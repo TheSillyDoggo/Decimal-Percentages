@@ -13,7 +13,7 @@ using namespace geode::prelude;
 
 int64_t getDecimalPlaces(bool qualifiedForInsaneMode = true) {
 	auto decimalPlaces = Mod::get()->getSettingValue<int64_t>("decimalPlaces");
-	if (!qualifiedForInsaneMode && decimalPlaces > 4 && !Mod::get()->getSettingValue<bool>("insaneMode")) decimalPlaces = 4;
+	if (!qualifiedForInsaneMode && decimalPlaces > 3 && !Mod::get()->getSettingValue<bool>("insaneMode")) decimalPlaces = 4;
 	return decimalPlaces;
 }
 
