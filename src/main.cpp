@@ -173,8 +173,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::smatch match;
 		bool matches = std::regex_match(percentLabelText, match, percentageRegex);
 		if (!matches) return;
-		if (match.empty() || match.size() > 3 || match[1].str().empty()) return;
-		if (match[2].str().empty()) return;
+		if (match.empty() || match.size() > 3 || match[2].str().empty()) return;
 		std::string newLabelText = std::regex_replace(percentLabelText, std::regex(match[2].str()), decimalPercentAsCString(m_level));
 		m_percentageLabel->setString(newLabelText.c_str());
 	}
