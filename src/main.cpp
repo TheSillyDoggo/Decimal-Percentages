@@ -7,9 +7,15 @@
 #include <cvolton.level-id-api/include/EditorIDs.hpp>
 #include <regex>
 
-static const std::regex percentageRegex(R"(^(?:\d+(?:\.\d+)?\%)[^\n\d]*(\d+(?:\.\d+)?\%)$)", std::regex::optimize | std::regex::icase);
+static const std::regex percentageRegex(R"(^(\d+(?:\.\d+)?\%)[^\n\d]*(\d+(?:\.\d+)?\%)?$)", std::regex::optimize | std::regex::icase);
 
 using namespace geode::prelude;
+
+int64_t getDecimalPlaces(bool qualifiedForInsaneMode = true) {
+	auto decimalPlaces = Mod::get()->getSettingValue<int64_t>("decimalPlaces");
+	if (!qualifiedForInsaneMode && decimalPlaces > 4 && !Mod::get()->getSettingValue<bool>("insaneMode")) decimalPlaces = 4;
+	return decimalPlaces;
+}
 
 float getPercentageForLevel(GJGameLevel* level, bool practice = false) {
 	if (level->m_normalPercent > 99 && !practice || level->m_practicePercent > 99 && practice) return 100.f;
@@ -32,12 +38,12 @@ float getPercentageForLevel(GJGameLevel* level, bool practice = false) {
 	return Mod::get()->getSavedValue<float>(str, practice ? level->m_practicePercent : level->m_normalPercent.value());
 }
 
-std::string roundPercentage(float v) {
-	return numToString<float>(v, Mod::get()->getSettingValue<int64_t>("decimalPlaces"));
+std::string roundPercentage(float percentage, bool qualifiedForInsaneMode = true) {
+	return numToString<float>(percentage, getDecimalPlaces(qualifiedForInsaneMode));
 }
 
-std::string decimalPercentAsCString(GJGameLevel *level, bool practice = false) {
-	return fmt::format("{}%", roundPercentage(getPercentageForLevel(level, practice)));
+std::string decimalPercentAsCString(GJGameLevel *level, bool practice = false, bool qualifiedForInsaneMode = true) {
+	return fmt::format("{}%", roundPercentage(getPercentageForLevel(level, practice), qualifiedForInsaneMode));
 }
 
 CCLabelBMFont* getLabelByID(CCNode* parent, const std::string& nodeID) {
@@ -74,11 +80,11 @@ class $modify(MyLevelInfoLayer, LevelInfoLayer) {
 		if (!LevelInfoLayer::init(level, challenge)) return false;
 
 		if (auto normal = getLabelByID(this, "normal-mode-percentage")) {
-			normal->setString(decimalPercentAsCString(level, false).c_str());
+			normal->setString(decimalPercentAsCString(level, false, true).c_str());
 		}
 
 		if (auto practice = getLabelByID(this, "practice-mode-percentage")) {
-			practice->setString(decimalPercentAsCString(level, true).c_str());
+			practice->setString(decimalPercentAsCString(level, true, true).c_str());
 		}
 
 		return true;
@@ -92,11 +98,11 @@ class $modify(MyPauseLayer, PauseLayer) {
 		auto level = PlayLayer::get()->m_level;
 		if (!level) return;
 		if (auto normal = getLabelByID(this, "normal-progress-label")) {
-			normal->setString(decimalPercentAsCString(level, false).c_str());
+			normal->setString(decimalPercentAsCString(level, false, true).c_str());
 		}
 
 		if (auto practice = getLabelByID(this, "practice-progress-label")) {
-			practice->setString(decimalPercentAsCString(level, true).c_str());
+			practice->setString(decimalPercentAsCString(level, true, true).c_str());
 		}
 	}
 };
@@ -107,7 +113,7 @@ class $modify(MyLevelCell, LevelCell) {
 
 		if (!level) return;
 		if (auto percent = getLabelByID(this, "percentage-label")) {
-			percent->setString(decimalPercentAsCString(level, false).c_str());
+			percent->setString(decimalPercentAsCString(level, false, false).c_str());
 		}
 	}
 };
@@ -118,16 +124,24 @@ class $modify(MyLevelPage, LevelPage) {
 
 		if (!level) return;
 		if (auto normal = getLabelByID(this, "normal-progress-label")) {
-			normal->setString(decimalPercentAsCString(level, false).c_str());
+			normal->setString(decimalPercentAsCString(level, false, true).c_str());
 		}
 
 		if (auto practice = getLabelByID(this, "practice-progress-label")) {
-			practice->setString(decimalPercentAsCString(level, true).c_str());
+			practice->setString(decimalPercentAsCString(level, true, true).c_str());
 		}
 	}
 };
 
 class $modify(MyPlayLayer, PlayLayer) {
+	static void onModify(auto& self) {
+		(void) self.setHookPriority("PlayLayer::updateProgressbar", -2123456789);
+	}
+
+	std::string formatCurrentPercentInPlayLayer() {
+		return fmt::format("{:.{}f}%", this->getCurrentPercent(), getDecimalPlaces());
+	}
+
 	void showNewBest(bool p0, int p1, int p2, bool p3, bool p4, bool p5) {
 		PlayLayer::showNewBest(p0, p1, p2, p3, p4, p5);
 
@@ -145,7 +159,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 				if (!std::string(label->getString()).ends_with("%")) continue;
 				const auto dst = Loader::get()->getLoadedMod("raydeeux.deathscreentweaks");
 				if (!dst->getSettingValue<bool>("enabled")) label->setString(fmt::format("{}%", roundPercentage(getPercentageForLevel(m_level, false))).c_str());
-				else label->setString(fmt::format("{:.{}f}%", getCurrentPercent(), Mod::get()->getSettingValue<int64_t>("decimalPlaces")).c_str());
+				else label->setString(formatCurrentPercentInPlayLayer().c_str());
 			}
 		});
 	}
@@ -158,12 +172,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string percentLabelText = m_percentageLabel->getString();
 		std::smatch match;
 		bool matches = std::regex_match(percentLabelText, match, percentageRegex);
-		log::info("percentLabelText: {} | matches: {} | match.size(): {}", percentLabelText, matches, match.size());
 		if (!matches) return;
-		if (match.empty() || match.size() > 2) return;
-		const std::string latestBestMaybe = match[1].str();
-		log::info("probably the new best? {}", latestBestMaybe);
-		const std::string newLabelText = std::regex_replace(percentLabelText, std::regex(latestBestMaybe), decimalPercentAsCString(m_level));
+		if (match.empty() || match.size() > 3 || match[1].str().empty()) return;
+		if (match[2].str().empty()) return;
+		std::string newLabelText = std::regex_replace(percentLabelText, std::regex(match[2].str()), decimalPercentAsCString(m_level));
 		m_percentageLabel->setString(newLabelText.c_str());
 	}
 };

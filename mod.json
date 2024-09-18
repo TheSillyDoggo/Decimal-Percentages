@@ -35,9 +35,9 @@
 				"slider-step": 1
 			}
 		},
-		"percentLabel": {
-			"name": "Apply Changes to Percentage Text",
-			"description": "Applies this mod's changes to the percentage text seen while playing levels.\n\n<cy>This setting is disabled by default because nearly every mod menu under the sun already has this feature.</c>",
+		"insaneMode": {
+			"name": "Insane Mode",
+			"description": "For the person who wants to display more than 4 decimal points outside of the level progress bar.",
 			"type": "bool",
 			"default": false
 		}
