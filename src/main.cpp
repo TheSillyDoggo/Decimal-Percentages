@@ -14,7 +14,7 @@ using namespace geode::prelude;
 
 int64_t getDecimalPlaces(bool qualifiedForInsaneMode = true) {
 	auto decimalPlaces = Mod::get()->getSettingValue<int64_t>("decimalPlaces");
-	if (!qualifiedForInsaneMode && decimalPlaces > 3 && !Mod::get()->getSettingValue<bool>("insaneMode")) decimalPlaces = 4;
+	if (!qualifiedForInsaneMode && decimalPlaces > 3 && !Mod::get()->getSettingValue<bool>("insaneMode")) decimalPlaces = 3;
 	return decimalPlaces;
 }
 
@@ -174,8 +174,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::smatch match;
 		bool matches = std::regex_match(percentLabelText, match, percentageRegex);
 		if (!matches) return;
-		if (match.empty() || match.size() > 3 || match[2].str().empty()) return;
-		std::string newLabelText = std::regex_replace(percentLabelText, std::regex(match[2].str()), decimalPercentAsCString(m_level));
+		if (match.empty() || match.size() > 2 || match[1].str().empty()) return;
+		std::string newLabelText = std::regex_replace(percentLabelText, std::regex(match[1].str()), decimalPercentAsCString(m_level));
 		m_percentageLabel->setString(newLabelText.c_str());
 	}
 };
