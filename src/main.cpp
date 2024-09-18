@@ -7,7 +7,8 @@
 #include <cvolton.level-id-api/include/EditorIDs.hpp>
 #include <regex>
 
-static const std::regex percentageRegex(R"(^(\d+(?:\.\d+)?\%)[^\n\d]*(\d+(?:\.\d+)?\%)?$)", std::regex::optimize | std::regex::icase);
+static const std::regex percentageRegex(R"(^(?:\d+(?:\.\d+)?\%)[^\n\d]*(\d+(?:\.\d+)?\%)?$)", std::regex::optimize | std::regex::icase);
+// see https://regex101.com/r/wlpdff/1 for context.
 
 using namespace geode::prelude;
 
