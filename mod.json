@@ -1,36 +1,72 @@
 {
-	"geode": "3.5.0",
+	"geode": "3.4.0",
 	"gd": {
 		"win": "2.206",
-		"android": "2.206",
 		"mac": "2.206",
-		"ios": "2.206"
+		"android": "2.206"
 	},
-	"id": "thesillydoggo.decimal_percentages",
+	"id": "raydeeux_thesillydoggo.decimal_percentages",
 	"name": "Decimal Percentages",
 	"version": "v1.0.0",
-	"developer": "TheSillyDoggo",
-	"description": "Shows decimals in your new bests",
-	"dependencies": [
-        {
-            "id": "cvolton.level-id-api",
-            "version": "v1.0.0",
-            "importance": "required"
-        },
-		{
-			"id": "geode.node-ids",
-			"version": ">=v1.10.0",
-			"importance": "required"
-		}
-    ],
+	"developers": ["TheSillyDoggo", "RayDeeUx"],
+	"description": "Shows decimals in your percentages everywhere.",
+	"repository": "https://github.com/RayDeeUx/Decimal-Percentages",
 	"settings": {
-		"decimal-places": {
-			"type": "int",
+		"enabled": {
+			"name": "Enabled",
+			"description": "Toggles the mod.",
+			"type": "bool",
+			"default": true
+		},
+		"decimalPlaces": {
 			"name": "Decimal Places",
+			"description": "The amount of decimal places you want in your percentage.\n\n<cy>If you have DeathScreenTweaks</c> <cl>(DST)</c> <cy>installed, decimal percentage settings from DST</c> <cl>(specifically for \"New Best\" screens)</c> <cy>will override your preference set here.</c>",
+			"type": "int",
 			"default": 2,
 			"min": 1,
-			"max": 50,
-			"description": "The amount of decimal places in the number"
+			"max": 15,
+			"control": {
+				"input": true,
+				"slider": true,
+				"arrows": true,
+				"big-arrows": true,
+				"arrow-step": 1,
+				"big-arrow-step": 5,
+				"slider-step": 1
+			}
+		},
+		"percentLabel": {
+			"name": "Apply Changes to Percentage Text",
+			"description": "Applies this mod's changes to the percentage text seen while playing levels.\n\n<cy>This setting is disabled by default because nearly every mod menu under the sun already has this feature.</c>",
+			"type": "bool",
+			"default": false
 		}
+	},
+	"dependencies": [
+		{
+			"id": "cvolton.level-id-api",
+			"version": ">=v1.0.1",
+			"importance": "required"
+		},
+		{
+			"id": "geode.node-ids",
+			"version": ">=v1.14.0",
+			"importance": "required"
+		}
+	],
+	"incompatibilities": [
+		{
+			"id": "thesillydoggo.decimal_percentages",
+			"version": "*",
+			"importance": "superseded"
+		}
+	],
+	"issues": {
+		"url": "https://discord.com/channels/911701438269386882/1205523212444639292",
+		"info": "Ping me <cl>(@erymanthus)</c> in the Geode SDK Discord server's <cl>#help</c> channel if you need help. <cr>DMs are NOT accepted.</c>"
+	},
+	"links": {
+		"community": "https://discord.gg/WqZBYdBWZW",
+		"homepage": "https://discord.com/channels/822510988409831486/1206371881222144020"
 	}
 }
