@@ -1,4 +1,4 @@
-# Decimal Percentages
+# DecimalPercentages
 
 Adds decimal points to percentages everywhere you can think of. (Hopefully.)
 
