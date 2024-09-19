@@ -133,11 +133,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 	static void onModify(auto& self) {
 		(void) self.setHookPriority("PlayLayer::updateProgressbar", -2123456789);
 	}
-
 	std::string formatCurrentPercentInPlayLayer() {
 		return fmt::format("{:.{}f}%", this->getCurrentPercent(), getDecimalPlaces());
 	}
-
 	void showNewBest(bool p0, int p1, int p2, bool p3, bool p4, bool p5) {
 		PlayLayer::showNewBest(p0, p1, p2, p3, p4, p5);
 		if (!getBool("enabled") || !m_level) return;
@@ -157,7 +155,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 		});
 	}
-
 	void updateProgressbar() {
 		PlayLayer::updateProgressbar();
 		if (!getBool("enabled") || !m_level || m_level->isPlatformer() || !m_percentageLabel) return;
