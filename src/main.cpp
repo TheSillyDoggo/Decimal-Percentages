@@ -7,7 +7,7 @@
 #include <cvolton.level-id-api/include/EditorIDs.hpp>
 #include <regex>
 
-#define PREFERRED_HOOK_PRIO w // because for some genius reason QOLMod changes a level's levelType value and now this hook prio's here to stop that
+#define PREFERRED_HOOK_PRIO -2123456789 // because for some genius reason QOLMod changes a level's levelType value and now this hook prio's here to stop that
 
 static const std::regex percentageRegex(R"(^(?:\d+(?:\.\d+)?%)([^\n\d]*)(\d+(?:\.\d+)?%)$)", std::regex::optimize | std::regex::icase);
 // see https://regex101.com/r/jlTQrI/2 for context.
