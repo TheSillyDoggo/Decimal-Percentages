@@ -40,6 +40,12 @@
 			"description": "For the person who wants to display more than three decimal points outside of the level progress bar.",
 			"type": "bool",
 			"default": false
+		},
+		"logging": {
+			"name": "Logging",
+			"description": "Toggles logging.",
+			"type": "bool",
+			"default": false
 		}
 	},
 	"dependencies": [

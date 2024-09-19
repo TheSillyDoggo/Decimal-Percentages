@@ -12,9 +12,13 @@ static const std::regex percentageRegex(R"(^(?:\d+(?:\.\d+)?%)([^\n\d]*)(\d+(?:\
 
 using namespace geode::prelude;
 
+bool getBool(const std::string_view& key) {
+	return Mod::get()->getSettingValue<bool>(key);
+}
+
 int64_t getDecimalPlaces(bool qualifiedForInsaneMode = true) {
 	auto decimalPlaces = Mod::get()->getSettingValue<int64_t>("decimalPlaces");
-	if (!qualifiedForInsaneMode && decimalPlaces > 3 && !Mod::get()->getSettingValue<bool>("insaneMode")) decimalPlaces = 3;
+	if (!qualifiedForInsaneMode && decimalPlaces > 3 && !getBool("insaneMode")) decimalPlaces = 3;
 	return decimalPlaces;
 }
 
@@ -49,18 +53,19 @@ CCLabelBMFont* getLabelByID(CCNode* parent, const std::string& nodeID) {
 }
 
 void savePercent(GJGameLevel* level, float percent, bool practice) {
+	std::string levelIDPercentageKey;
 	if (level->m_levelType == GJLevelType::Editor) {
-		auto str = fmt::format("percentage_{}_local_{}", practice ? "practice" : "normal", EditorIDs::getID(level));
-		Mod::get()->setSavedValue<float>(str, percent);
-		return;
+		levelIDPercentageKey = fmt::format("percentage_{}_local_{}", practice ? "practice" : "normal", EditorIDs::getID(level));
+	} else {
+		levelIDPercentageKey = fmt::format("percentage_{}_{}", practice ? "practice" : "normal", level->m_levelID.value());
 	}
-	auto str = fmt::format("percentage_{}_{}", practice ? "practice" : "normal", level->m_levelID.value());
-	Mod::get()->setSavedValue<float>(str, percent);
+	Mod::get()->setSavedValue<float>(levelIDPercentageKey, percent);
 }
 
 class $modify(GJGameLevel) {
 	void savePercentage(int percent, bool isPracticeMode, int clicks, int attempts, bool isChkValid) {
 		GJGameLevel::savePercentage(percent, isPracticeMode, clicks, attempts, isChkValid);
+		if (!getBool("enabled")) return;
 		auto pl = PlayLayer::get();
 		if (!pl) {
 			savePercent(this, percent, isPracticeMode);
@@ -73,6 +78,7 @@ class $modify(GJGameLevel) {
 class $modify(MyLevelInfoLayer, LevelInfoLayer) {
 	bool init(GJGameLevel* level, bool challenge) {
 		if (!LevelInfoLayer::init(level, challenge)) return false;
+		if (!getBool("enabled")) return true;
 		if (auto normal = getLabelByID(this, "normal-mode-percentage")) {
 			normal->setString(decimalPercentAsString(level, false, true).c_str());
 		}
@@ -86,6 +92,7 @@ class $modify(MyLevelInfoLayer, LevelInfoLayer) {
 class $modify(MyPauseLayer, PauseLayer) {
 	virtual void customSetup() {
 		PauseLayer::customSetup();
+		if (!getBool("enabled")) return;
 		auto level = PlayLayer::get()->m_level;
 		if (!level) return;
 		if (auto normal = getLabelByID(this, "normal-progress-label")) {
@@ -100,6 +107,7 @@ class $modify(MyPauseLayer, PauseLayer) {
 class $modify(MyLevelCell, LevelCell) {
 	void loadFromLevel(GJGameLevel* level) {
 		LevelCell::loadFromLevel(level);
+		if (!getBool("enabled")) return;
 		if (!level) return;
 		if (auto percent = getLabelByID(this, "percentage-label")) {
 			percent->setString(decimalPercentAsString(level, false, false).c_str());
@@ -110,6 +118,7 @@ class $modify(MyLevelCell, LevelCell) {
 class $modify(MyLevelPage, LevelPage) {
 	void updateDynamicPage(GJGameLevel* level) {
 		LevelPage::updateDynamicPage(level);
+		if (!getBool("enabled")) return;
 		if (!level) return;
 		if (auto normal = getLabelByID(this, "normal-progress-label")) {
 			normal->setString(decimalPercentAsString(level, false, true).c_str());
@@ -131,7 +140,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 	void showNewBest(bool p0, int p1, int p2, bool p3, bool p4, bool p5) {
 		PlayLayer::showNewBest(p0, p1, p2, p3, p4, p5);
-		if (!m_level) return;
+		if (!getBool("enabled") || !m_level) return;
 		const auto loader = Loader::get();
 		if (const auto dst = loader->getLoadedMod("raydeeux.deathscreentweaks")) {
 			if (dst->getSettingValue<bool>("enabled") && dst->getSettingValue<bool>("accuratePercent")) return;
@@ -151,14 +160,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 	void updateProgressbar() {
 		PlayLayer::updateProgressbar();
-		if (!m_level) return;
-		if (m_level->isPlatformer()) return;
-		if (!m_percentageLabel) return;
+		if (!getBool("enabled") || !m_level || m_level->isPlatformer() || !m_percentageLabel) return;
 		std::string percentLabelText = m_percentageLabel->getString();
 		std::smatch match;
 		bool matches = std::regex_match(percentLabelText, match, percentageRegex);
 		if (!matches) return;
-		log::info("\nmatch[1].str(): {}\nmatch[2].str(): {}", match[1].str(), match[2].str());
+		if (getBool("logging")) log::info("\nmatch[1].str(): {}\nmatch[2].str(): {}", match[1].str(), match[2].str());
 		if (match.empty() || match.size() > 3 || match[1].str().empty() || match[1].str().empty()) return;
 		std::string newLabelText = std::regex_replace(percentLabelText, std::regex(fmt::format("{}{}", match[1].str(), match[2].str())), fmt::format("{}{}", match[1].str(), decimalPercentAsString(m_level)));
 		m_percentageLabel->setString(newLabelText.c_str());
