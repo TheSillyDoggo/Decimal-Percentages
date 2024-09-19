@@ -53,6 +53,7 @@ CCLabelBMFont* getLabelByID(CCNode* parent, const std::string& nodeID) {
 }
 
 void savePercent(GJGameLevel* level, float percent, bool practice) {
+	if (level->isPlatformer()) return;
 	std::string levelIDPercentageKey;
 	if (level->m_levelType == GJLevelType::Editor) {
 		levelIDPercentageKey = fmt::format("percentage_{}_local_{}", practice ? "practice" : "normal", EditorIDs::getID(level));
@@ -65,7 +66,7 @@ void savePercent(GJGameLevel* level, float percent, bool practice) {
 class $modify(GJGameLevel) {
 	void savePercentage(int percent, bool isPracticeMode, int clicks, int attempts, bool isChkValid) {
 		GJGameLevel::savePercentage(percent, isPracticeMode, clicks, attempts, isChkValid);
-		if (!getBool("enabled")) return;
+		if (!getBool("enabled") || this->isPlatformer()) return;
 		auto pl = PlayLayer::get();
 		if (!pl) {
 			savePercent(this, percent, isPracticeMode);
@@ -78,7 +79,7 @@ class $modify(GJGameLevel) {
 class $modify(MyLevelInfoLayer, LevelInfoLayer) {
 	bool init(GJGameLevel* level, bool challenge) {
 		if (!LevelInfoLayer::init(level, challenge)) return false;
-		if (!getBool("enabled")) return true;
+		if (!getBool("enabled") || level->isPlatformer()) return true;
 		if (auto normal = getLabelByID(this, "normal-mode-percentage")) {
 			normal->setString(decimalPercentAsString(level, false, true).c_str());
 		}
@@ -94,7 +95,7 @@ class $modify(MyPauseLayer, PauseLayer) {
 		PauseLayer::customSetup();
 		if (!getBool("enabled")) return;
 		auto level = PlayLayer::get()->m_level;
-		if (!level) return;
+		if (!level || level->isPlatformer()) return;
 		if (auto normal = getLabelByID(this, "normal-progress-label")) {
 			normal->setString(decimalPercentAsString(level, false, true).c_str());
 		}
@@ -108,7 +109,7 @@ class $modify(MyLevelCell, LevelCell) {
 	void loadFromLevel(GJGameLevel* level) {
 		LevelCell::loadFromLevel(level);
 		if (!getBool("enabled")) return;
-		if (!level) return;
+		if (!level || level->isPlatformer()) return;
 		if (auto percent = getLabelByID(this, "percentage-label")) {
 			percent->setString(decimalPercentAsString(level, false, false).c_str());
 		}
@@ -119,7 +120,7 @@ class $modify(MyLevelPage, LevelPage) {
 	void updateDynamicPage(GJGameLevel* level) {
 		LevelPage::updateDynamicPage(level);
 		if (!getBool("enabled")) return;
-		if (!level) return;
+		if (!level || level->isPlatformer()) return;
 		if (auto normal = getLabelByID(this, "normal-progress-label")) {
 			normal->setString(decimalPercentAsString(level, false, true).c_str());
 		}
@@ -138,7 +139,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	void showNewBest(bool p0, int p1, int p2, bool p3, bool p4, bool p5) {
 		PlayLayer::showNewBest(p0, p1, p2, p3, p4, p5);
-		if (!getBool("enabled") || !m_level) return;
+		if (!getBool("enabled") || !m_level || m_level->isPlatformer()) return;
 		const auto loader = Loader::get();
 		if (const auto dst = loader->getLoadedMod("raydeeux.deathscreentweaks")) {
 			if (dst->getSettingValue<bool>("enabled") && dst->getSettingValue<bool>("accuratePercent")) return;
