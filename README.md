@@ -1,23 +1,9 @@
 # DecimalPercentages
-This is where she makes a mod.
 
-<img src="logo.png" width="150" alt="the mod's logo" />
+Adds decimal points to percentages everywhere you can think of. (Hopefully.)
 
-*Update logo.png to change your mod's icon (please)*
+_**Note:**_ _For those who have DeathScreenTweaks, you are welcome to leave the "Accurate Percentages" toggle setting to whatever you like; DecimalPercentages will try its best to be compatible in any case._
 
-## Getting started
-We recommend heading over to [the getting started section on our docs](https://docs.geode-sdk.org/getting-started/) for useful info on what to do next.
+Most of this mod's code, including how this mod stores level percentages, was written by TheSillyDoggo. Then life happened, as well as a few bug reports.
 
-## Build instructions
-For more info, see [our docs](https://docs.geode-sdk.org/getting-started/create-mod#build)
-```sh
-# Assuming you have the Geode CLI set up already
-geode build
-```
-
-# Resources
-* [Geode SDK Documentation](https://docs.geode-sdk.org/)
-* [Geode SDK Source Code](https://github.com/geode-sdk/geode/)
-* [Geode CLI](https://github.com/geode-sdk/cli)
-* [Bindings](https://github.com/geode-sdk/bindings/)
-* [Dev Tools](https://github.com/geode-sdk/DevTools)
+Much like EvenMoreLevelTags, this [Geode mod](https://geode-sdk.org) is a (consenting) continuation of TheSillyDoggo's (unfinished) "Decimal Percentages" mod, and is licensed under the LGPLv2 license.

@@ -7,6 +7,8 @@
 #include <cvolton.level-id-api/include/EditorIDs.hpp>
 #include <regex>
 
+#define PREFERRED_HOOK_PRIO w // because for some genius reason QOLMod changes a level's levelType value and now this hook prio's here to stop that
+
 static const std::regex percentageRegex(R"(^(?:\d+(?:\.\d+)?%)([^\n\d]*)(\d+(?:\.\d+)?%)$)", std::regex::optimize | std::regex::icase);
 // see https://regex101.com/r/jlTQrI/2 for context.
 
@@ -54,16 +56,19 @@ CCLabelBMFont* getLabelByID(CCNode* parent, const std::string& nodeID) {
 
 void savePercent(GJGameLevel* level, float percent, bool practice) {
 	if (level->isPlatformer()) return;
-	std::string levelIDPercentageKey;
 	if (level->m_levelType == GJLevelType::Editor) {
-		levelIDPercentageKey = fmt::format("percentage_{}_local_{}", practice ? "practice" : "normal", EditorIDs::getID(level));
+		auto str = fmt::format("percentage_{}_local_{}", practice ? "practice" : "normal", EditorIDs::getID(level));
+		Mod::get()->setSavedValue<float>(str, percent);
 	} else {
-		levelIDPercentageKey = fmt::format("percentage_{}_{}", practice ? "practice" : "normal", level->m_levelID.value());
+		auto str = fmt::format("percentage_{}_{}", practice ? "practice" : "normal", level->m_levelID.value());
+		Mod::get()->setSavedValue<float>(str, percent);
 	}
-	Mod::get()->setSavedValue<float>(levelIDPercentageKey, percent);
 }
 
 class $modify(GJGameLevel) {
+	static void onModify(auto& self) {
+		(void) self.setHookPriority("GJGameLevel::savePercentage", PREFERRED_HOOK_PRIO);
+	}
 	void savePercentage(int percent, bool isPracticeMode, int clicks, int attempts, bool isChkValid) {
 		GJGameLevel::savePercentage(percent, isPracticeMode, clicks, attempts, isChkValid);
 		if (!getBool("enabled") || this->isPlatformer()) return;
@@ -77,6 +82,9 @@ class $modify(GJGameLevel) {
 };
 
 class $modify(MyLevelInfoLayer, LevelInfoLayer) {
+	static void onModify(auto& self) {
+		(void) self.setHookPriority("LevelInfoLayer::init", PREFERRED_HOOK_PRIO);
+	}
 	bool init(GJGameLevel* level, bool challenge) {
 		if (!LevelInfoLayer::init(level, challenge)) return false;
 		if (!getBool("enabled") || level->isPlatformer()) return true;
@@ -91,6 +99,9 @@ class $modify(MyLevelInfoLayer, LevelInfoLayer) {
 };
 
 class $modify(MyPauseLayer, PauseLayer) {
+	static void onModify(auto& self) {
+		(void) self.setHookPriority("PauseLayer::customSetup", PREFERRED_HOOK_PRIO);
+	}
 	virtual void customSetup() {
 		PauseLayer::customSetup();
 		if (!getBool("enabled")) return;
@@ -106,6 +117,9 @@ class $modify(MyPauseLayer, PauseLayer) {
 };
 
 class $modify(MyLevelCell, LevelCell) {
+	static void onModify(auto& self) {
+		(void) self.setHookPriority("LevelCell::loadFromLevel", PREFERRED_HOOK_PRIO);
+	}
 	void loadFromLevel(GJGameLevel* level) {
 		LevelCell::loadFromLevel(level);
 		if (!getBool("enabled")) return;
@@ -117,6 +131,9 @@ class $modify(MyLevelCell, LevelCell) {
 };
 
 class $modify(MyLevelPage, LevelPage) {
+	static void onModify(auto& self) {
+		(void) self.setHookPriority("LevelPage::updateDynamicPage", PREFERRED_HOOK_PRIO);
+	}
 	void updateDynamicPage(GJGameLevel* level) {
 		LevelPage::updateDynamicPage(level);
 		if (!getBool("enabled")) return;
@@ -132,7 +149,8 @@ class $modify(MyLevelPage, LevelPage) {
 
 class $modify(MyPlayLayer, PlayLayer) {
 	static void onModify(auto& self) {
-		(void) self.setHookPriority("PlayLayer::updateProgressbar", -2123456789);
+		(void) self.setHookPriority("PlayLayer::updateProgressbar", PREFERRED_HOOK_PRIO);
+		// DO NOT SET A HOOK PRIO FOR PlayLayer::showNewBest
 	}
 	std::string formatCurrentPercentInPlayLayer() {
 		return fmt::format("{:.{}f}%", this->getCurrentPercent(), getDecimalPlaces());
