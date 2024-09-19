@@ -2,7 +2,7 @@
 
 Adds decimal points to percentages everywhere you can think of. (Hopefully.)
 
-<cy>_**Note:**_</c> _<cy>For those who have</c> <cl>DeathScreenTweaks</c><cy>, you are welcome to leave the</c> <cl>"Accurate Percentages"</c> <cy>toggle setting to whatever you like; DecimalPercentages will try its best to be compatible in any case.</c>_
+<cy>_***Note:***_</c> *<cy>For those who have</c> <cl>DeathScreenTweaks</c><cy>, you are welcome to leave the</c> <cl>"Accurate Percentages"</c> <cy>toggle setting to whatever you like; DecimalPercentages will try its best to be compatible in any case.</c>*
 
 Most of this mod's code, including how this mod stores level percentages, was written by TheSillyDoggo. Then life happened, as well as a few bug reports.
 
